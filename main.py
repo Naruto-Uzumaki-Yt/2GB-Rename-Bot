@@ -19,6 +19,8 @@ from config import (
     UPDATE_CHANNEL
 )
 
+user_files = {}
+
 print("LOG_CHANNEL:", LOG_CHANNEL)
 print("UPDATE_CHANNEL:", UPDATE_CHANNEL)
 
@@ -35,7 +37,7 @@ bot = Client(
 )
 
 # ---------------- START ----------------
-@bot.on_message(filters.command("start"))
+@bot.on_message(filters.command("start") & filters.private)
 async def start(_, msg):
 
     buttons = InlineKeyboardMarkup([
@@ -243,70 +245,6 @@ async def choose(_, msg):
 
     await msg.reply("Choose mode:", reply_markup=buttons)
 
-# ---------------- RENAME CORE + FFMPEG ----------------
-@bot.on_message(filters.document | filters.video)
-async def rename(_, msg):
-    user_id = msg.from_user.id
-
-    file = msg.document or msg.video
-
-    user = await get_user(user_id) or {}
-
-    prefix = user.get("prefix", "")
-    suffix = user.get("suffix", "")
-    caption = user.get("caption", "")
-
-    meta = user.get("metadata", {})
-
-    # SAFE filename
-    original_name = file.file_name if hasattr(file, "file_name") else "video.mp4"
-    new_name = f"{prefix}{original_name}{suffix}"
-
-    status = await msg.reply("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Downloading...")
-
-    file_path = await msg.download(file_name=original_name)
-
-    output = f"temp_{user_id}_{original_name}"
-
-    final = add_metadata(
-        file_path,
-        output,
-        meta.get("title", ""),
-        meta.get("author", ""),
-        meta.get("artist", ""),
-        meta.get("audio", ""),
-        meta.get("subtitle", ""),
-        meta.get("video", "")
-    )
-
-    await status.edit("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📤 Uploading...")
-
-    async def prog(current, total):
-        try:
-            percent = int(current * 100 / total)
-
-            filled = int(percent / 10)
-            bar = "⬢" * filled + "⬡" * (10 - filled)
-
-            await status.edit(f"{bar}\n📤 Uploading... {percent}%")
-        except:
-            pass
-            
-    await msg.reply_document(
-        document=final,
-        file_name=new_name,
-        caption=caption,
-        progress=prog
-    )
-
-    try:
-        os.remove(file_path)
-        os.remove(final)
-    except:
-        pass
-
-    await status.delete()
-
 # ---------------- ADMIN ----------------
 def admin(uid):
     return uid == OWNER_ID
@@ -424,10 +362,73 @@ async def cb(_, query: CallbackQuery):
 
         elif data == "close":
             await query.message.delete()
+            
+        elif data in ["file", "video"]:
 
-    except Exception as e:
-        print("Callback Error:", e)
-        await query.answer("Error ⚠️", show_alert=True)
+            user_id = query.from_user.id
+
+            if user_id not in user_files:
+                return await query.answer("Send file again ❌", show_alert=True)
+
+            msg = user_files[user_id]
+            file = msg.document or msg.video
+
+            await query.message.edit_text("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Downloading...")
+
+            file_path = await msg.download(file_name=file.file_name)
+
+            user = await get_user(user_id) or {}
+
+            prefix = user.get("prefix", "")
+            suffix = user.get("suffix", "")
+            caption = user.get("caption", "")
+
+            original_name = file.file_name if hasattr(file, "file_name") else "video.mp4"
+            new_name = f"{prefix}{original_name}{suffix}"
+
+            output = f"temp_{user_id}_{original_name}"
+
+            final = add_metadata(
+                file_path,
+                output,
+                user.get("title", ""),
+                user.get("author", ""),
+                user.get("artist", ""),
+                user.get("audio", ""),
+                user.get("subtitle", ""),
+                user.get("video", "")
+            )
+
+            await query.message.edit_text("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📤 Uploading...")
+
+            async def prog(current, total):
+                try:
+                    percent = int(current * 100 / total)
+                    filled = int(percent / 10)
+                    bar = "⬢" * filled + "⬡" * (10 - filled)
+
+                    await query.message.edit_text(f"{bar}\n📤 Uploading... {percent}%")
+                except:
+                    pass
+
+            await msg.reply_document(
+                document=final,
+                file_name=new_name,
+                caption=caption,
+                progress=prog
+            )
+
+            try:
+                os.remove(file_path)
+                os.remove(final)
+            except:
+                pass
+
+            try:
+                await query.message.delete()
+            except:
+                pass
+                
 # ---------------- RUN ----------------
 keep_alive()
 
