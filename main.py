@@ -29,6 +29,22 @@ from utils import progress_bar
 from ffmpeg_utils import add_metadata
 from keep_alive import keep_alive
 
+def humanbytes(size):
+    if not size:
+        return "0 B"
+    power = 2**10
+    n = 0
+    Dic_powerN = {0: 'B', 1: 'KB', 2: 'MB', 3: 'GB', 4: 'TB'}
+    while size > power:
+        size /= power
+        n += 1
+    return str(round(size, 2)) + " " + Dic_powerN[n]
+
+
+def time_formatter(seconds):
+    m, s = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    return f"{h}h {m}m {s}s"
 bot = Client(
     "rename-bot",
     api_id=API_ID,
@@ -37,7 +53,7 @@ bot = Client(
 )
 
 # ---------------- START ----------------
-@bot.on_message(filters.command("start") & filters.private)
+@bot.on_message(filters.command("start"))
 async def start(_, msg):
 
     buttons = InlineKeyboardMarkup([
@@ -377,7 +393,37 @@ async def cb(_, query: CallbackQuery):
 
             await query.message.edit_text("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Downloading...")
 
-            file_path = await msg.download(file_name=file.file_name)
+            start_time = time.time()
+
+            async def dprog(current, total):
+                try:
+                    now = time.time()
+                    diff = now - start_time
+    
+                    percent = current * 100 / total
+                    speed = current / diff if diff > 0 else 0
+                    eta = (total - current) / speed if speed > 0 else 0
+
+                    filled = int(percent / 10)
+                    bar = "⬢" * filled + "⬡" * (10 - filled)
+
+                   text = f"""
+            {bar}
+
+            📥 Downloading...
+
+            <b>» Done</b> : {round(percent, 2)}%
+            <b>» Size</b> : {humanbytes(current)} | {humanbytes(total)}
+            <b>» Speed</b> : {humanbytes(speed)}/s
+            <b>» ETA</b> : {time_formatter(eta)}
+            """
+
+                    await query.message.edit_text(text)
+
+                except:
+                    pass
+
+            file_path = await msg.download(file_name=file.file_name, progress=dprog)
 
             user = await get_user(user_id) or {}
 
@@ -403,15 +449,33 @@ async def cb(_, query: CallbackQuery):
 
             await query.message.edit_text("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📤 Uploading...")
 
+            start_time = time.time()
+
             async def prog(current, total):
                 try:
-                    percent = int(current * 100 / total)
+                    now = time.time()
+                    diff = now - start_time
+
+                    percent = current * 100 / total
+                    speed = current / diff if diff > 0 else 0
+                    eta = (total - current) / speed if speed > 0 else 0
+
                     filled = int(percent / 10)
                     bar = "⬢" * filled + "⬡" * (10 - filled)
 
-                    await query.message.edit_text(f"{bar}\n📤 Uploading... {percent}%")
+                    text = f"""
+            {bar}
+
+            <b>» Done</b> : {round(percent, 2)}%
+            <b>» Size</b> : {humanbytes(current)} | {humanbytes(total)}
+            <b>» Speed</b> : {humanbytes(speed)}/s
+            <b>» ETA</b> : {time_formatter(eta)}
+            """
+
+                    await query.message.edit_text(text)
+
                 except:
-                    pass
+                   pass
 
             await msg.reply_document(
                 document=final,
