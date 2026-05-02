@@ -1,23 +1,21 @@
-# ------------------------- #
-# Don't Remove Credit 
-# Ask Doubt @AU_Bot_Discussion 
-# Owner @Mr_Mohammed_29 
-# ------------------------- #
-
 import ffmpeg
 import os
 
 def add_metadata(input_path, output_path, title="", author="", description=""):
     try:
+        stream = ffmpeg.input(input_path)
+
         (
             ffmpeg
-            .input(input_path)
             .output(
+                stream,
                 output_path,
-                codec="copy",
-                metadata=f"title={title}",
-                metadata=f"artist={author}",
-                metadata=f"comment={description}"
+                codec="copy"
+            )
+            .global_args(
+                "-metadata", f"title={title}",
+                "-metadata", f"artist={author}",
+                "-metadata", f"comment={description}"
             )
             .run(overwrite_output=True)
         )
