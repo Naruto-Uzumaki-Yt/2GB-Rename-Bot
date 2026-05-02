@@ -6,6 +6,7 @@
 import os
 import time
 from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import (
     API_ID,
     API_HASH,
@@ -34,8 +35,26 @@ bot = Client(
 # ---------------- START ----------------
 @bot.on_message(filters.command("start"))
 async def start(_, msg):
-    await msg.reply("𝖈ʜᴇᴄᴋ 𝖎 𝖆ᴍ ʟɪᴠᴇ ⚡")
 
+    buttons = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("🏠 Home", callback_data="home"),
+            InlineKeyboardButton("ℹ️ About", callback_data="about")
+        ],
+        [
+            InlineKeyboardButton("📖 Help", callback_data="help"),
+            InlineKeyboardButton("📢 Updates", url=UPDATE_CHANNEL)
+        ],
+        [
+            InlineKeyboardButton("👑 Owner", callback_data="owner"),
+            InlineKeyboardButton("❌ Close", callback_data="close")
+        ]
+    ])
+
+    await msg.reply(
+        "🤖 **Welcome To Jinwoo Rename Bot**\n\nSend files to rename with metadata support.",
+        reply_markup=buttons
+    )
 # ---------------- CAPTION ----------------
 @bot.on_message(filters.command("set_caption"))
 async def set_caption(_, msg):
@@ -69,18 +88,72 @@ async def set_suffix(_, msg):
 # ---------------- METADATA ----------------
 @bot.on_message(filters.command("metadata"))
 async def metadata(_, msg):
-    try:
-        _, title, author, desc = msg.text.split(" ", 3)
-        await set_user(msg.from_user.id, {
-            "metadata": {
-                "title": title,
-                "author": author,
-                "description": desc
-            }
-        })
-        await msg.reply("Metadata saved")
-    except:
-        await msg.reply("Usage: /metadata title author description")
+
+    text = """
+ᴍᴀɴᴀɢɪɴɢ ᴍᴇᴛᴀᴅᴀᴛᴀ ғᴏʀ ʏᴏᴜʀ ᴠɪᴅᴇᴏs ᴀɴᴅ ғɪʟᴇs
+
+ᴠᴀʀɪᴏᴜꜱ ᴍᴇᴛᴀᴅᴀᴛᴀ:
+
+- ᴛɪᴛʟᴇ: Descriptive title of the media.
+- ᴀᴜᴛʜᴏʀ: The creator or owner of the media.
+- ᴀʀᴛɪꜱᴛ: The artist associated with the media.
+- ᴀᴜᴅɪᴏ: Title or description of audio content.
+- ꜱᴜʙᴛɪᴛʟᴇ: Title of subtitle content.
+- ᴠɪᴅᴇᴏ: Title or description of video content.
+
+ᴄᴏᴍᴍᴀɴᴅꜱ:
+
+➜ /settitle
+➜ /setauthor
+➜ /setartist
+➜ /setaudio
+➜ /setsubtitle
+➜ /setvideo
+
+ᴇxᴀᴍᴘʟᴇ: /settitle My Video
+"""
+
+    await msg.reply(text)
+
+# ---------------- METADATA SETTERS ----------------
+@bot.on_message(filters.command("setartist"))
+async def setartist(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /setartist Name")
+
+    artist = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"artist": artist})
+    await msg.reply("Artist saved")
+
+
+@bot.on_message(filters.command("setaudio"))
+async def setaudio(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /setaudio Audio Title")
+
+    audio = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"audio": audio})
+    await msg.reply("Audio saved")
+
+
+@bot.on_message(filters.command("setsubtitle"))
+async def setsubtitle(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /setsubtitle Subtitle")
+
+    subtitle = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"subtitle": subtitle})
+    await msg.reply("Subtitle saved")
+
+
+@bot.on_message(filters.command("setvideo"))
+async def setvideo(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /setvideo Video Title")
+
+    video = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"video": video})
+    await msg.reply("Video metadata saved")
 
 # ---------------- THUMB ----------------
 @bot.on_message(filters.photo)
@@ -166,6 +239,29 @@ async def remprem(_, msg):
 @bot.on_message(filters.command("status"))
 async def status(_, msg):
     await msg.reply("Bot running 24/7 ⚡")
+
+# ---------- Callback --------------- #
+@bot.on_callback_query()
+async def cb(_, query):
+
+    data = query.data
+
+    if data == "home":
+        await query.message.edit_text("🏠 Home Menu")
+
+    elif data == "about":
+        await query.message.edit_text("ℹ️ Rename Bot with Metadata + FFmpeg Engine")
+
+    elif data == "help":
+        await query.message.edit_text(
+            "📖 Help:\n\n/set_caption\n/set_prefix\n/set_suffix\n/metadata"
+        )
+
+    elif data == "owner":
+        await query.message.edit_text(f"👑 Owner ID: {OWNER_ID}")
+
+    elif data == "close":
+        await query.message.delete()
 
 # ---------------- RUN ----------------
 keep_alive()
