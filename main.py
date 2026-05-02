@@ -428,6 +428,10 @@ async def cb(_, query: CallbackQuery):
                 await query.message.delete()
             except:
                 pass
+
+     except Exception as e:
+         print("Callback Error:", e)
+         await query.answer("Error ⚠️", show_alert=True)
                 
 # ---------------- RUN ----------------
 keep_alive()
