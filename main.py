@@ -54,27 +54,38 @@ bot = Client(
 
 # ---------------- START ----------------
 @bot.on_message(filters.command("start"))
-async def start(_, msg):
+async def start(_, message):
+
+    user = message.from_user
+
+    m = await message.reply_text("Jɪɴᴡᴏᴏ Sᴜɴɢ . .")
+    await asyncio.sleep(0.5)
+    await m.edit_text("🎊")
+    await asyncio.sleep(0.5)
+    await m.edit_text("⚡")
+    await asyncio.sleep(0.5)
+    await m.edit_text("Mᴀsᴛᴇʀ...")
+    await asyncio.sleep(0.4)
+    await m.delete()
+
+    await message.reply_sticker("CAACAgUAAxkBAAEXm-JplJOyujCdKOZhh8m5gC4BJpW52AACaxwAA2epVnjNNttcc5jLHgQ")
 
     buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
         [
-            InlineKeyboardButton("🏠 Home", callback_data="home"),
-            InlineKeyboardButton("ℹ️ About", callback_data="about")
+            InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇs', url=UPDATE_CHANNEL),
+            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url=UPDATE_CHANNEL)
         ],
         [
-            InlineKeyboardButton("📖 Help", callback_data="help"),
-            InlineKeyboardButton("📢 Updates", url=UPDATE_CHANNEL)
-        ],
-        [
-            InlineKeyboardButton("👑 Owner", callback_data="owner"),
-            InlineKeyboardButton("❌ Close", callback_data="close")
+            InlineKeyboardButton('• ᴀʙᴏᴜᴛ', callback_data='about'),
+            InlineKeyboardButton('sᴏᴜʀᴄᴇ •', callback_data='source')
         ]
     ])
 
-    await msg.reply(
-        "🤖 **Welcome To Jinwoo Rename Bot**\n\n"
-        "Send files to rename with metadata support ⚡",
-        reply_markup=buttons
+    await message.reply_text(
+        f"👋 Hello {user.mention}\n\n🤖 Welcome to Rename Bot\nSend file to start.",
+        reply_markup=buttons,
+        disable_web_page_preview=True
     )
 # ---------------- CAPTION ----------------
 @bot.on_message(filters.command("set_caption"))
@@ -399,7 +410,7 @@ async def cb(_, query: CallbackQuery):
                 try:
                     now = time.time()
                     diff = now - start_time
-    
+
                     percent = current * 100 / total
                     speed = current / diff if diff > 0 else 0
                     eta = (total - current) / speed if speed > 0 else 0
@@ -407,9 +418,7 @@ async def cb(_, query: CallbackQuery):
                     filled = int(percent / 10)
                     bar = "⬢" * filled + "⬡" * (10 - filled)
 
-                   text = f"""
-            {bar}
-
+                    text = f"""{bar}
             📥 Downloading...
 
             <b>» Done</b> : {round(percent, 2)}%
@@ -418,10 +427,10 @@ async def cb(_, query: CallbackQuery):
             <b>» ETA</b> : {time_formatter(eta)}
             """
 
-                    await query.message.edit_text(text)
+                   await query.message.edit_text(text)
 
-                except:
-                    pass
+               except:
+                   pass
 
             file_path = await msg.download(file_name=file.file_name, progress=dprog)
 
@@ -463,8 +472,7 @@ async def cb(_, query: CallbackQuery):
                     filled = int(percent / 10)
                     bar = "⬢" * filled + "⬡" * (10 - filled)
 
-                    text = f"""
-            {bar}
+                    text = f"""{bar}
 
             <b>» Done</b> : {round(percent, 2)}%
             <b>» Size</b> : {humanbytes(current)} | {humanbytes(total)}
@@ -475,14 +483,21 @@ async def cb(_, query: CallbackQuery):
                     await query.message.edit_text(text)
 
                 except:
-                   pass
+                    pass
 
-            await msg.reply_document(
-                document=final,
-                file_name=new_name,
-                caption=caption,
-                progress=prog
-            )
+            if data == "video":
+                await msg.reply_video(
+                    video=final,
+                    caption=caption,
+                    progress=prog
+                )
+            else:
+                await msg.reply_document(
+                    document=final,
+                    file_name=new_name,
+                    caption=caption,
+                    progress=prog
+                )
 
             try:
                 os.remove(file_path)
