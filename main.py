@@ -235,7 +235,9 @@ async def del_thumb(_, msg):
 # ---------------- FILE / VIDEO CHOOSER ----------------
 @bot.on_message(filters.document | filters.video)
 async def choose(_, msg):
-
+    
+    user_files[msg.from_user.id] = msg
+    
     buttons = InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📄 File Mode", callback_data="file"),
@@ -429,9 +431,9 @@ async def cb(_, query: CallbackQuery):
             except:
                 pass
 
-            except Exception as e:
-                    print("Callback Error:", e)
-                    await query.answer("Error ⚠️", show_alert=True)
+    except Exception as e:
+        print("Callback Error:", e)
+        await query.answer("Error ⚠️", show_alert=True)
                 
 # ---------------- RUN ----------------
 keep_alive()
