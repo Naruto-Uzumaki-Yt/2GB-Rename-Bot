@@ -7,6 +7,8 @@ import os
 import time
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import CallbackQuery
+
 from config import (
     API_ID,
     API_HASH,
@@ -52,7 +54,8 @@ async def start(_, msg):
     ])
 
     await msg.reply(
-        "🤖 **Welcome To Jinwoo Rename Bot**\n\nSend files to rename with metadata support.",
+        "🤖 **Welcome To Jinwoo Rename Bot**\n\n"
+        "Send files to rename with metadata support ⚡",
         reply_markup=buttons
     )
 # ---------------- CAPTION ----------------
@@ -76,22 +79,35 @@ async def del_caption(_, msg):
 @bot.on_message(filters.command("see_prefix"))
 async def see_prefix(_, msg):
     user = await get_user(msg.from_user.id) or {}
-    await msg.reply(user.get("prefix", "Not set"))
+    prefix = user.get("prefix")
+
+    if not prefix:
+        return await msg.reply("Prefix is not set ❌")
+
+    await msg.reply(f"Current prefix: `{prefix}`")
+
 
 @bot.on_message(filters.command("del_prefix"))
 async def del_prefix(_, msg):
     await set_user(msg.from_user.id, {"prefix": ""})
-    await msg.reply("Deleted prefix")
+    await msg.reply("Prefix deleted ✔")
+
 
 @bot.on_message(filters.command("see_suffix"))
 async def see_suffix(_, msg):
     user = await get_user(msg.from_user.id) or {}
-    await msg.reply(user.get("suffix", "Not set"))
+    suffix = user.get("suffix")
+
+    if not suffix:
+        return await msg.reply("Suffix is not set ❌")
+
+    await msg.reply(f"Current suffix: `{suffix}`")
+
 
 @bot.on_message(filters.command("del_suffix"))
 async def del_suffix(_, msg):
     await set_user(msg.from_user.id, {"suffix": ""})
-    await msg.reply("Deleted suffix")
+    await msg.reply("Suffix deleted ✔")
 
 # ---------------- METADATA ----------------
 @bot.on_message(filters.command("metadata"))
@@ -135,59 +151,84 @@ async def plans(_, msg):
     await msg.reply("Upgrade to Premium Plan 🚀")
 
 # ---------------- METADATA SETTERS ----------------
+@bot.on_message(filters.command("settitle"))
+async def settitle(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /settitle text")
+
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"title": text})
+    await msg.reply("Title is saved ✔")
+
+
+@bot.on_message(filters.command("setauthor"))
+async def setauthor(_, msg):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /setauthor text")
+
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"author": text})
+    await msg.reply("Author is saved ✔")
+
+
 @bot.on_message(filters.command("setartist"))
 async def setartist(_, msg):
     if len(msg.command) < 2:
-        return await msg.reply("Usage: /setartist Name")
+        return await msg.reply("Usage: /setartist text")
 
-    artist = msg.text.split(None, 1)[1]
-    await set_user(msg.from_user.id, {"artist": artist})
-    await msg.reply("Artist saved")
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"artist": text})
+    await msg.reply("Artist is saved ✔")
 
 
 @bot.on_message(filters.command("setaudio"))
 async def setaudio(_, msg):
     if len(msg.command) < 2:
-        return await msg.reply("Usage: /setaudio Audio Title")
+        return await msg.reply("Usage: /setaudio text")
 
-    audio = msg.text.split(None, 1)[1]
-    await set_user(msg.from_user.id, {"audio": audio})
-    await msg.reply("Audio saved")
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"audio": text})
+    await msg.reply("Audio is saved ✔")
 
 
 @bot.on_message(filters.command("setsubtitle"))
 async def setsubtitle(_, msg):
     if len(msg.command) < 2:
-        return await msg.reply("Usage: /setsubtitle Subtitle")
+        return await msg.reply("Usage: /setsubtitle text")
 
-    subtitle = msg.text.split(None, 1)[1]
-    await set_user(msg.from_user.id, {"subtitle": subtitle})
-    await msg.reply("Subtitle saved")
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"subtitle": text})
+    await msg.reply("Subtitle is saved ✔")
 
 
 @bot.on_message(filters.command("setvideo"))
 async def setvideo(_, msg):
     if len(msg.command) < 2:
-        return await msg.reply("Usage: /setvideo Video Title")
+        return await msg.reply("Usage: /setvideo text")
 
-    video = msg.text.split(None, 1)[1]
-    await set_user(msg.from_user.id, {"video": video})
-    await msg.reply("Video metadata saved")
-
+    text = msg.text.split(None, 1)[1]
+    await set_user(msg.from_user.id, {"video": text})
+    await msg.reply("Video metadata is saved ✔")
 # ---------------- THUMB ----------------
+@bot.on_message(filters.photo)
+async def save_thumb(_, msg):
+    await set_user(msg.from_user.id, {"thumb": msg.photo.file_id})
+    await msg.reply("Thumbnail saved ✔")
+
+
 @bot.on_message(filters.command("view_thumb"))
 async def view_thumb(_, msg):
     user = await get_user(msg.from_user.id) or {}
-    thumb = user.get("thumb")
-    if thumb:
-        await msg.reply_photo(thumb)
+    if user.get("thumb"):
+        await msg.reply_photo(user["thumb"])
     else:
-        await msg.reply("No thumbnail")
+        await msg.reply("No thumbnail found")
+
 
 @bot.on_message(filters.command("del_thumb"))
 async def del_thumb(_, msg):
     await set_user(msg.from_user.id, {"thumb": ""})
-    await msg.reply("Thumbnail deleted")
+    await msg.reply("Thumbnail deleted ✔")
 
 # ---------------- RENAME CORE + FFMPEG ----------------
 @bot.on_message(filters.document | filters.video)
@@ -308,40 +349,58 @@ async def broadcast(_, msg):
     if msg.from_user.id != OWNER_ID:
         return
 
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /broadcast message")
+
     text = msg.text.split(None, 1)[1]
 
-    users_list = users.find({})
-    async for user in users_list:
+    async for user in users.find():
         try:
             await bot.send_message(user["_id"], text)
         except:
             pass
 
-    await msg.reply("Broadcast sent")
+    await msg.reply("Broadcast sent ✔")
 
 # ---------- Callback --------------- #
 @bot.on_callback_query()
-async def cb(_, query):
+async def cb(_, query: CallbackQuery):
 
     data = query.data
 
-    if data == "home":
-        await query.message.edit_text("🏠 Home Menu")
+    try:
 
-    elif data == "about":
-        await query.message.edit_text("ℹ️ Rename Bot with Metadata + FFmpeg Engine")
+        if data == "home":
+            await query.message.edit_text("🏠 Home Menu")
 
-    elif data == "help":
-        await query.message.edit_text(
-            "📖 Help:\n\n/set_caption\n/set_prefix\n/set_suffix\n/metadata"
-        )
+        elif data == "about":
+            await query.message.edit_text(
+                "ℹ️ Rename Bot\n\n"
+                "Features:\n"
+                "• File Rename\n"
+                "• Metadata Engine\n"
+                "• Thumbnail Support\n"
+                "• FFmpeg Processing"
+            )
 
-    elif data == "owner":
-        await query.message.edit_text(f"👑 Owner ID: {OWNER_ID}")
+        elif data == "help":
+            await query.message.edit_text(
+                "📖 Help Menu\n\n"
+                "/set_caption\n"
+                "/set_prefix\n"
+                "/set_suffix\n"
+                "/metadata"
+            )
 
-    elif data == "close":
-        await query.message.delete()
+        elif data == "owner":
+            await query.message.edit_text(f"👑 Owner ID: {OWNER_ID}")
 
+        elif data == "close":
+            await query.message.delete()
+
+    except Exception as e:
+        print("Callback Error:", e)
+        await query.answer("Error ⚠️", show_alert=True)
 # ---------------- RUN ----------------
 keep_alive()
 
