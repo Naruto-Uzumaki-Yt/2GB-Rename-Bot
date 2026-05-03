@@ -95,35 +95,45 @@ async def start(_, message):
 
     user = message.from_user
 
-    m = await message.reply_text("Jɪɴᴡᴏᴏ Sᴜɴɢ . .")
-    await asyncio.sleep(0.5)
-    await m.edit_text("🎊")
-    await asyncio.sleep(0.5)
-    await m.edit_text("⚡")
-    await asyncio.sleep(0.5)
-    await m.edit_text("Mᴀsᴛᴇʀ...")
-    await asyncio.sleep(0.4)
-    await m.delete()
+    try:
+        m = await message.reply_text("Jɪɴᴡᴏᴏ Sᴜɴɢ . .")
+        await asyncio.sleep(0.5)
+        await m.edit_text("🎊")
+        await asyncio.sleep(0.5)
+        await m.edit_text("⚡")
+        await asyncio.sleep(0.5)
+        await m.edit_text("Mᴀsᴛᴇʀ...")
+        await asyncio.sleep(0.4)
+        await m.delete()
 
-    await message.reply_sticker("CAACAgUAAxkBAAEXm-JplJOyujCdKOZhh8m5gC4BJpW52AACaxwAA2epVnjNNttcc5jLHgQ")
+        # sticker
+        try:
+            await message.reply_sticker(
+                "CAACAgUAAxkBAAEXm-JplJOyujCdKOZhh8m5gC4BJpW52AACaxwAA2epVnjNNttcc5jLHgQ"
+            )
+        except:
+            pass
 
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
-        [
-            InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇs', url=UPDATE_CHANNEL),
-            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url=UPDATE_CHANNEL)
-        ],
-        [
-            InlineKeyboardButton('• ᴀʙᴏᴜᴛ', callback_data='about'),
-            InlineKeyboardButton('sᴏᴜʀᴄᴇ •', callback_data='source')
-        ]
-    ])
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
+            [
+                InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇs', url=UPDATE_CHANNEL),
+                InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url=UPDATE_CHANNEL)
+            ],
+            [
+                InlineKeyboardButton('• ᴀʙᴏᴜᴛ', callback_data='about'),
+                InlineKeyboardButton('sᴏᴜʀᴄᴇ •', callback_data='source')
+            ]
+        ])
 
-    await message.reply_text(
-        f"👋 Hello {user.mention}\n\n🤖 Welcome to Rename Bot\nSend file to start.",
-        reply_markup=buttons,
-        disable_web_page_preview=True
-    )
+        await message.reply_text(
+            f"👋 Hello {user.mention}\n\n🤖 Welcome to Rename Bot\nSend file to start.",
+            reply_markup=buttons,
+            disable_web_page_preview=True
+        )
+
+    except Exception as e:
+        print("START ERROR:", e)
 # ---------------- CAPTION ----------------
 @bot.on_message(filters.command("set_caption"))
 async def set_caption(_, msg):
