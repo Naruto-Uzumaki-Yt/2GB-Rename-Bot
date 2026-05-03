@@ -92,7 +92,7 @@ def get_home_buttons():
         [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
         [
             InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇs', url=UPDATE_CHANNEL),
-            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ', url=UPDATE_CHANNEL)
+            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ', url="https://t.me/AU_Bot_Discussion")
         ],
         [
             InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about'),
@@ -243,14 +243,24 @@ async def start(_, message):
             await m.edit_text("Jɪɴᴡᴏᴏ Sᴜɴɢ...")
             await asyncio.sleep(0.5)
             await m.delete()
-        except:
-            pass
+        except Exception as e:
+            print("ANIMATION ERROR:", e)
 
-        await message.reply_text(
-            get_home_text(user),
-            reply_markup=get_home_buttons(),
-            parse_mode="html"
-        )
+        # ---------------- MAIN MESSAGE ----------------
+        try:
+            await message.reply_text(
+                get_home_text(user),
+                reply_markup=get_home_buttons(),
+                parse_mode="html"
+            )
+        except Exception as e:
+            print("HOME UI ERROR:", e)
+
+            # 🔥 fallback if buttons fail
+            await message.reply_text(
+                get_home_text(user),
+                parse_mode="html"
+            )
 
     except Exception as e:
         print("START ERROR:", e)
@@ -383,7 +393,6 @@ async def myplan(_, msg):
         text = f"✨ ʜᴇʏ {msg.from_user.first_name},\n\n"
         text += "💎 Yᴏᴜ ᴄᴜʀʀᴇɴᴛʟʏ ʜᴀᴠᴇ ᴀɴ ᴀᴄᴛɪᴠᴇ **Pʀᴇᴍɪᴜᴍ Pʟᴀɴ** ✔\n"
         text += "❤️ Tʜᴀɴᴋs Fᴏʀ Bᴜʏɪɴɢ Pʀᴇᴍɪᴜᴍ!"
-
     else:
         text = f"ʜᴇʏ {msg.from_user.first_name},\n\n"
         text += "𝒀𝒐𝒖 𝑫𝒐 𝑵𝒐𝒕 𝑯𝒂𝒗𝒆 𝑨𝒏𝒚 𝑨𝒄𝒕𝒊𝒗𝒆 𝑷𝒓𝒆𝒎𝒊𝒖𝒎 𝒑𝒍𝒂𝒏𝒔,\n"
@@ -395,6 +404,7 @@ async def myplan(_, msg):
         ]
     ])
 
+    await msg.reply(text, reply_markup=buttons)
 # ------------ plans ---------------#
 @bot.on_message(filters.command("plans"))
 async def plans(_, msg):
@@ -418,6 +428,7 @@ async def plans(_, msg):
     ])
 
     await msg.reply(text, reply_markup=buttons)
+
     
 # ---------------- METADATA SETTERS ----------------
 @bot.on_message(filters.command("settitle"))
