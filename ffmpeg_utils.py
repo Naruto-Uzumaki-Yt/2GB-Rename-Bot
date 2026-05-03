@@ -7,38 +7,31 @@
 import ffmpeg
 import os
 
-def add_metadata(input_path, output_path, title="", author="", artist="", audio="", subtitle="", video=""):
+def add_metadata(input_path, output_path,
+                 title="", author="", artist="",
+                 audio="", subtitle="", video=""):
+
     try:
         stream = ffmpeg.input(input_path)
 
-        output_kwargs = {
-            "vcodec": "copy",
-            "acodec": "copy",
-            "map_metadata": 0
-        }
+        metadata = {}
 
-        stream = ffmpeg.output(stream, output_path, **output_kwargs)
+        if title: metadata["title"] = title
+        if author: metadata["artist"] = author
+        if artist: metadata["album_artist"] = artist
+        if audio: metadata["comment"] = audio
+        if subtitle: metadata["subtitle"] = subtitle
+        if video: metadata["description"] = video
 
-        # Apply metadata correctly using global_args (proper ffmpeg method)
-        if title:
-            stream = stream.global_args("-metadata", f"title={title}")
+        out = ffmpeg.output(
+            stream,
+            output_path,
+            vcodec="copy",
+            acodec="copy",
+            **{f"metadata:g": f"{k}={v}" for k, v in metadata.items()}
+        )
 
-        if author:
-            stream = stream.global_args("-metadata", f"artist={author}")
-
-        if artist:
-            stream = stream.global_args("-metadata", f"album_artist={artist}")
-
-        if audio:
-            stream = stream.global_args("-metadata", f"comment={audio}")
-
-        if subtitle:
-            stream = stream.global_args("-metadata", f"subtitle={subtitle}")
-
-        if video:
-            stream = stream.global_args("-metadata", f"description={video}")
-
-        ffmpeg.run(stream, overwrite_output=True, quiet=True)
+        ffmpeg.run(out, overwrite_output=True, quiet=True)
 
         return output_path
 
