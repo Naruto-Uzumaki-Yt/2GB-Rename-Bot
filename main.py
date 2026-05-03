@@ -7,8 +7,57 @@ import os
 import time
 import asyncio
 import ffmpeg
+import psutil
+
+START_TIME = time.time()
+
+# ------------------------- #
+def get_uptime():
+    seconds = int(time.time() - START_TIME)
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return f"{h}h {m}m {s}s"
+
+
+def get_memory():
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 * 1024)
+    return f"{mem:.2f} MB"
+
+
+def get_ping():
+    return "200 ms"  # simple static (you can upgrade later)
+
+# ------------------------- #
+
 from PIL import Image
 from pyrogram import Client, filters
+
+import time
+
+def parse_duration(value: str):
+    value = value.lower().strip()
+
+    if value.endswith("hr"):
+        return int(value[:-2]) * 3600
+
+    if value.endswith("h"):
+        return int(value[:-1]) * 3600
+
+    if value.endswith("d"):
+        return int(value[:-1]) * 86400
+
+    if value.endswith("w"):
+        return int(value[:-1]) * 604800
+
+    if value.endswith("m"):
+        return int(value[:-1]) * 2592000  # 30 days approx
+
+    if value.endswith("y"):
+        return int(value[:-1]) * 31536000
+
+    return None
+    
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.types import CallbackQuery
 
@@ -318,7 +367,10 @@ async def del_thumb(_, msg):
 # ---------------- FILE / VIDEO CHOOSER ----------------
 @bot.on_message(filters.document | filters.video)
 async def choose(_, msg):
-    
+
+    if await is_banned(msg.from_user.id):
+        return await msg.reply("🚫 You are banned from using this bot.")
+        
     user_files[msg.from_user.id] = msg
     
     buttons = InlineKeyboardMarkup([
@@ -336,11 +388,37 @@ def admin(uid):
 
 @bot.on_message(filters.command("addpremium"))
 async def addprem(_, msg):
+
     if not admin(msg.from_user.id):
         return
+
+    if len(msg.command) < 3:
+        return await msg.reply("Usage: /addpremium user_id duration (1hr, 7d, 30d, 1y)")
+
     uid = int(msg.text.split()[1])
-    await set_user(uid, {"premium": True})
-    await msg.reply("Premium added")
+    duration = msg.text.split()[2]
+
+    seconds = parse_duration(duration)
+
+    if not seconds:
+        return await msg.reply("Invalid format ❌ Use: 1hr / 7d / 30d / 1y")
+
+    expiry = int(time.time()) + seconds
+
+    await set_user(uid, {
+        "premium": True,
+        "premium_expiry": expiry
+    })
+
+    await msg.reply(f"""
+🎉 🎉 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗻𝗼𝘄 𝗮 𝗣𝗿𝗲𝗺𝗶𝘂𝗺 𝗨𝘀𝗲𝗿!
+
+👤 User ID: {uid}
+⏳ Duration: {duration}
+🕒 Expires In: {duration}
+
+✨ Status: Premium Activated ✔
+""")
 
 @bot.on_message(filters.command("remove_premium"))
 async def remprem(_, msg):
@@ -352,7 +430,24 @@ async def remprem(_, msg):
 
 @bot.on_message(filters.command("status"))
 async def status(_, msg):
-    await msg.reply("Bot running 24/7 ⚡")
+
+    users_count = users.count_documents({})
+
+    text = f"""
+📊 𝗕𝗼𝘁 𝗦𝘁𝗮𝘁𝘂𝘀
+
+👥 Usᴇʀs: {users_count}
+⏱ Uᴘᴛɪᴍᴇ: {get_uptime()}
+⚡ Pɪɴɢ: {get_ping()}
+🧠 Mᴇᴍᴏʀʏ Usᴀɢᴇ: {get_memory()}
+🧾 Vᴇʀsɪᴏɴ: v3.0
+"""
+
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔄 Refresh", callback_data="status_refresh")]
+    ])
+
+    await msg.reply_text(text, reply_markup=buttons)
 
 # ----------- BAN | UNBAN -------------- #
 def is_admin(uid):
@@ -384,6 +479,7 @@ async def logs(_, msg):
 # -------------BROADCAST------------ #
 @bot.on_message(filters.command("broadcast"))
 async def broadcast(_, msg):
+
     if msg.from_user.id != OWNER_ID:
         return
 
@@ -396,7 +492,8 @@ async def broadcast(_, msg):
     success = 0
     failed = 0
 
-    users_list = users.find({})
+    # ✅ FIX: NO await here
+    users_list = get_all_users()
 
     async for user in users_list:
         total += 1
@@ -451,6 +548,27 @@ async def cb(_, query: CallbackQuery):
                 "/metadata"
             )
 
+        elif data == "status_refresh":
+
+            users_count = users.count_documents({})
+
+            text = f"""
+        📊 𝗕𝗼𝘁 𝗦𝘁𝗮𝘁𝘂𝘀
+
+        👥 Usᴇʀs: {users_count}
+        ⏱ Uᴘᴛɪᴍᴇ: {get_uptime()}
+        ⚡ Pɪɴɢ: {get_ping()}
+        🧠 Mᴇᴍᴏʀʏ Usᴀɢᴇ: {get_memory()}
+        🧾 Vᴇʀsɪᴏɴ: v3.0
+        """
+
+            await query.message.edit_text(
+                text,
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Refresh", callback_data="status_refresh")]
+                ])
+            )
+
         elif data == "owner":
             await query.message.edit_text(f"👑 Owner ID: {OWNER_ID}")
 
@@ -458,6 +576,9 @@ async def cb(_, query: CallbackQuery):
             await query.message.delete()
             
         elif data in ["file", "video"]:
+
+            if await is_banned(user_id):
+                return await query.answer("🚫 Banned user", show_alert=True)
 
             user_id = query.from_user.id
 
