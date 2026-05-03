@@ -33,6 +33,8 @@ def get_ping():
 from PIL import Image
 from pyrogram import Client, filters
 
+active_tasks = {}
+
 import time
 
 def parse_duration(value: str):
@@ -581,6 +583,15 @@ async def cb(_, query: CallbackQuery):
 
         elif data == "close":
             await query.message.delete()
+
+        elif data.startswith("cancel_"):
+
+            uid = int(data.split("_")[1])
+
+            active_tasks[uid] = False
+
+            await query.message.edit_text("❌ Process Cancelled")
+            return
             
         elif data in ["file", "video"]:
 
@@ -588,6 +599,8 @@ async def cb(_, query: CallbackQuery):
                 return await query.answer("🚫 Banned user", show_alert=True)
 
             user_id = query.from_user.id
+            
+            active_tasks[user_id] = True
 
             if user_id not in user_files:
                 return await query.answer("Send file again ❌", show_alert=True)
@@ -595,11 +608,18 @@ async def cb(_, query: CallbackQuery):
             msg = user_files[user_id]
             file = msg.document or msg.video
 
-            await query.message.edit_text("⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Downloading...")
+            msg = await query.message.edit_text(
+                "⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Downloading...",
+                reply_markup=InlineKeyboardMarkup([
+                   [InlineKeyboardButton("❌ Cancel", callback_data=f"cancel_{user_id}")]
+                ])
+            )
 
             start_time = time.time()
 
             async def dprog(current, total):
+                if not active_tasks.get(user_id):
+                    raise Exception("Cancelled")   
                 try:
                     now = time.time()
                     diff = now - start_time
@@ -667,6 +687,8 @@ async def cb(_, query: CallbackQuery):
             start_time = time.time()
 
             async def prog(current, total):
+                if not active_tasks.get(user_id):
+                    raise Exception("Cancelled")
                 try:
                     now = time.time()
                     diff = now - start_time
@@ -723,6 +745,8 @@ async def cb(_, query: CallbackQuery):
                 await query.message.delete()
             except:
                 pass
+
+            active_tasks.pop(user_id, None)
 
     except Exception as e:
         print("Callback Error:", e)
