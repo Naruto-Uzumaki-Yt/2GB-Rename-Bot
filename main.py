@@ -57,6 +57,8 @@ def parse_duration(value: str):
         return int(value[:-1]) * 31536000
 
     return None
+
+# ------------------------- #
     
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.types import CallbackQuery
@@ -432,6 +434,11 @@ async def remprem(_, msg):
 async def status(_, msg):
 
     users_count = users.count_documents({})
+
+    if not await get_premium_status(msg.from_user.id):
+        premium = "No"
+    else:
+        premium = "Yes"
 
     text = f"""
 📊 𝗕𝗼𝘁 𝗦𝘁𝗮𝘁𝘂𝘀
