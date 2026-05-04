@@ -933,13 +933,13 @@ async def cb(_, query: CallbackQuery):
                 bar = "⬢" * filled + "⬡" * (10 - filled)
 
                 text = f"""{bar}
-           📤 Uᴘʟᴏᴀᴅɪɴɢ...
+            📤 Uᴘʟᴏᴀᴅɪɴɢ...
 
-           <b>» 𝗗𝗼𝗻𝗲</b> : {round(percent, 2)}%
-           <b>» 𝗦𝗶𝘇𝗲</b> : {humanbytes(current)} | {humanbytes(total)}
-           <b>» 𝗦𝗽𝗲𝗲𝗱</b> : {humanbytes(speed)}/s
-           <b>» 𝗘𝗧𝗔</b> : {time_formatter(eta)}
-           """
+            <b>» 𝗗𝗼𝗻𝗲</b> : {round(percent, 2)}%
+            <b>» 𝗦𝗶𝘇𝗲</b> : {humanbytes(current)} | {humanbytes(total)}
+            <b>» 𝗦𝗽𝗲𝗲𝗱</b> : {humanbytes(speed)}/s
+            <b>» 𝗘𝗧𝗔</b> : {time_formatter(eta)}
+            """
 
                 try:
                     await query.message.edit_text(text)
@@ -966,7 +966,9 @@ async def cb(_, query: CallbackQuery):
                     )
             except Exception as e:
                 print("Upload Error:", e)
-                await query.message.edit_text("Eʀʀᴏʀ ‼️, Cᴏɴᴛᴀᴄᴛ ᴅᴇᴠᴇʟᴏᴘᴇʀ ᴛᴏ sᴏʟᴠᴇ ᴛʜᴇ ɪssᴜᴇ @Mr_Mohammed_29")
+                await query.message.edit_text(
+                    "Eʀʀᴏʀ ‼️, Cᴏɴᴛᴀᴄᴛ ᴅᴇᴠᴇʟᴏᴘᴇʀ @Mr_Mohammed_29"
+                )
                 return
 
 
