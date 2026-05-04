@@ -676,7 +676,7 @@ async def logs(_, msg):
 async def broadcast(_, msg):
 
     if msg.from_user.id != OWNER_ID:
-        return
+        return await msg.reply("❌ You are not authorized")
 
     if len(msg.command) < 2:
         return await msg.reply("𝘁𝘆𝗽𝗲 𝘄𝗶𝘁𝗵 /broadcast 𝗺𝗲𝘀𝘀𝗮𝗴𝗲")
@@ -687,24 +687,33 @@ async def broadcast(_, msg):
     success = 0
     failed = 0
 
-    users_list = get_all_users()
+    await msg.reply("📢 Broadcast started...")
 
-    async for user in users_list:
-        total += 1
-        try:
-            await bot.send_message(user["_id"], text)
-            success += 1
-        except:
-            failed += 1
-            
-    log_event(f"⏳️ 𝗕𝗿𝗼𝗮𝗱𝗰𝗮𝘀𝘁 𝗦𝗲𝗻𝘁: {text[:30]}")
+    try:
+        users_list = get_all_users()
 
-    await msg.reply(
-        f"⏳️ 𝗕𝗿𝗼𝗮𝗱𝗰𝗮𝘀𝘁 𝗖𝗼𝗺𝗽𝗹𝗲𝘁𝗲𝗱\n\n"
-        f"◇ Tᴏᴛᴀʟ Usᴇʀs: {total}\n"
-        f"◇ Sᴜᴄᴄᴇssғᴜʟ: {success}\n"
-        f"◇ Uɴsᴜᴄᴄᴇssғᴜʟ: {failed}"
-    )
+        async for user in users_list:
+            total += 1
+            try:
+                await bot.send_message(user["_id"], text)
+                success += 1
+            except:
+                failed += 1
+
+        log_event(f"⏳️ Broadcast Sent: {text[:30]}")
+
+        await msg.reply(
+            f"""
+⏳️ Broadcast Completed
+
+◇ Total Users: {total}
+◇ Successful: {success}
+◇ Unsuccessful: {failed}
+"""
+        )
+
+    except Exception as e:
+        await msg.reply(f"❌ Broadcast Error: {e}")
 # ---------- Callback --------------- #
 @bot.on_callback_query()
 async def cb(_, query: CallbackQuery):
