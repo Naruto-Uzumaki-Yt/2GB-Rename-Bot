@@ -583,6 +583,9 @@ async def remprem(_, msg):
 @bot.on_message(filters.command("status"))
 async def status(_, msg):
 
+    if msg.from_user.id != OWNER_ID:
+        return await msg.reply("❌ 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗻𝗼𝘁 𝗮𝘂𝘁𝗵𝗼𝗿𝗶𝘇𝗲𝗱 𝘁𝗼 𝘂𝘀𝗲 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱")
+
     users_count = await users.count_documents({})
     
     if not await get_premium_status(msg.from_user.id):
@@ -640,7 +643,7 @@ async def unban(_, msg):
 async def logs(_, msg):
 
     if msg.from_user.id != OWNER_ID:
-        return
+    return await msg.reply("❌ 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗻𝗼𝘁 𝗮𝘂𝘁𝗵𝗼𝗿𝗶𝘇𝗲𝗱 𝘁𝗼 𝘂𝘀𝗲 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱")
 
     try:
         with open("bot_logs.txt", "r", encoding="utf-8") as f:
@@ -779,6 +782,9 @@ async def cb(_, query: CallbackQuery):
             )
 
         elif data == "status_refresh":
+
+            if query.from_user.id != OWNER_ID:
+                return await query.answer("❌ 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗻𝗼𝘁 𝗮𝘂𝘁𝗵𝗼𝗿𝗶𝘇𝗲𝗱 𝘁𝗼 𝘂𝘀𝗲 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱", show_alert=True)
 
             users_count = await users.count_documents({})
             
