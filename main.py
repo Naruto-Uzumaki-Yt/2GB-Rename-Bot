@@ -962,10 +962,8 @@ async def cb(_, query: CallbackQuery):
 
                 try:
                     await query.message.edit_text(text)
-                except:
+                except Exception:
                    pass
-
-
            # -------- SEND FILE -------- #
             try:
                 if is_video:
@@ -985,9 +983,14 @@ async def cb(_, query: CallbackQuery):
                     )
             except Exception as e:
                 print("Upload Error:", e)
-                await query.message.edit_text(
-                    "Eʀʀᴏʀ ‼️, Cᴏɴᴛᴀᴄᴛ ᴅᴇᴠᴇʟᴏᴘᴇʀ @Mr_Mohammed_29"
-                )
+                
+                try:
+                    await query.message.edit_text(
+                        "Eʀʀᴏʀ ‼️, Cᴏɴᴛᴀᴄᴛ ᴅᴇᴠᴇʟᴏᴘᴇʀ @Mr_Mohammed_29"
+                    )
+                except:
+                    pass
+
                 return
 
 
@@ -997,13 +1000,13 @@ async def cb(_, query: CallbackQuery):
                     os.remove(file_path)
                 if os.path.exists(final):
                     os.remove(final)
-            except:
+            except Exception:
                 pass
  
             try:
                 if thumb_path and os.path.exists(thumb_path):
                     os.remove(thumb_path)
-            except:
+            except Exception:
                 pass
 
             await query.message.delete()
