@@ -90,10 +90,15 @@ def get_home_text(user):
 
 
 def get_home_buttons():
+    update_url = UPDATE_CHANNEL
+
+    if not update_url or not isinstance(update_url, str) or not update_url.startswith("http"):
+        update_url = "https://t.me/Anime_UpdatesAU"
+
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
         [
-            InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇs', url=UPDATE_CHANNEL),
+            InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇs', url=update_url),
             InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ', url="https://t.me/AU_Bot_Discussion")
         ],
         [
