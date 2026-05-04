@@ -254,7 +254,7 @@ async def start(_, message):
             await message.reply_text(
                 get_home_text(user),
                 reply_markup=get_home_buttons(),
-                parse_mode="html"
+                parse_mode="HTML"
             )
         except Exception as e:
             print("HOME UI ERROR:", e)
@@ -262,7 +262,7 @@ async def start(_, message):
             # 🔥 fallback if buttons fail
             await message.reply_text(
                 get_home_text(user),
-                parse_mode="html"
+                parse_mode="HTML"
             )
 
     except Exception as e:
@@ -701,7 +701,7 @@ async def cb(_, query: CallbackQuery):
             await query.message.edit_text(
                 get_home_text(user),
                 reply_markup=get_home_buttons(),
-                parse_mode="html"
+                parse_mode="HTML"
             )
             
         elif data == "about":
@@ -728,7 +728,7 @@ async def cb(_, query: CallbackQuery):
                     [InlineKeyboardButton("❌ Cʟᴏsᴇ", callback_data="close")]
                     ]),
                     disable_web_page_preview=True,
-                    parse_mode="html"
+                    parse_mode="HTML"
             )
 
         elif data == "source":
@@ -846,7 +846,7 @@ async def cb(_, query: CallbackQuery):
             log_event(f"User {user_id} uploaded file: {file.file_name}")
 
             await query.message.edit_text(
-                "⬡⬡⬡⬡⬡⬡⬡⬡⬡⬡\n📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...",
+                "📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...",
         reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("😞 Cᴀɴᴄᴇʟ", callback_data=f"cancel_{user_id}")]
                 ])
