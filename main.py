@@ -554,6 +554,17 @@ async def choose(_, msg):
 
     await msg.reply("𝗦𝗲𝗹𝗲𝗰𝘁 𝗧𝗵𝗲 𝗢𝘂𝘁𝗽𝘂𝘁 𝗙𝗶𝗹𝗲 𝗧𝘆𝗽𝗲:", reply_markup=buttons)
 
+#---------- Cancel ------------#
+@bot.on_message(filters.command("cancel"))
+async def cancel_cmd(_, msg):
+    user_id = msg.from_user.id
+
+    if user_id in active_tasks and active_tasks[user_id]:
+        active_tasks[user_id] = False
+        await msg.reply("❌ Pʀᴏᴄᴇss Cᴀɴᴄᴇʟʟᴇᴅ Sᴜᴄᴄᴇssғᴜʟʟʏ")
+    else:
+        await msg.reply("⚠️ Nᴏ Aᴄᴛɪᴠᴇ Tᴀsᴋ Tᴏ Cᴀɴᴄᴇʟ")
+
 # ---------------- ADMIN ----------------
 def admin(uid):
     return uid == OWNER_ID
@@ -926,8 +937,12 @@ async def cb(_, query: CallbackQuery):
                 except:
                     pass
 
-            file_path = await msg.download(file_name=file.file_name, progress=dprog)
-
+            try:
+                file_path = await msg.download(file_name=file.file_name, progress=dprog)
+            except Exception as e:
+                await query.message.edit_text("❌ Download Cancelled")
+                return
+                
             user = await get_user(user_id) or {}
 
             prefix = user.get("prefix", "")
@@ -986,7 +1001,7 @@ async def cb(_, query: CallbackQuery):
                 global upload_last_edit
 
                 if not active_tasks.get(user_id):
-                    return
+                    raise Exception("Cancelled")
 
                 now = time.time()
 
@@ -1015,7 +1030,6 @@ async def cb(_, query: CallbackQuery):
            # -------- SEND FILE -------- #
             try:
                 if mode == "video":
-
                     await msg.reply_video(
                         video=final,
                         caption=caption,
@@ -1023,9 +1037,7 @@ async def cb(_, query: CallbackQuery):
                         supports_streaming=True,
                         progress=prog
                     )
-
                 else:
-
                     await msg.reply_document(
                         document=final,
                         file_name=new_name,
@@ -1033,8 +1045,9 @@ async def cb(_, query: CallbackQuery):
                         thumb=thumb_path,
                         progress=prog
                     )
-            except Exception as e:
-                print("Upload Error:", e)
+            except Exception:
+                await query.message.edit_text("❌ Uᴘʟᴏᴀᴅ Cᴀɴᴄᴇʟʟᴇᴅ")
+                return
                 
                 try:
                     await query.message.edit_text(
