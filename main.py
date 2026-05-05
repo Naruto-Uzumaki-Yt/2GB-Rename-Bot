@@ -897,13 +897,13 @@ async def cb(_, query: CallbackQuery):
             async def dprog(current, total):
 
                 global download_last_edit
-                
+
                 if not active_tasks.get(user_id):
                     raise Exception("Cancelled")
-
+    
                 now = time.time()
-                diff = now - start_time
 
+                # 🔥 prevent too frequent edits
                 if now - download_last_edit < 1:
                     return
                 download_last_edit = now
@@ -914,14 +914,17 @@ async def cb(_, query: CallbackQuery):
                 bar = "⬢" * filled + "⬡" * (10 - filled)
 
                 text = f"""{bar}
-           📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...
-           <b>» 𝗗𝗼𝗻𝗲</b> : {round(percent, 2)}%
-           <b>» 𝗦𝗶𝘇𝗲</b> : {humanbytes(current)} | {humanbytes(total)}
-           <b>» 𝗦𝗽𝗲𝗲𝗱</b> : {humanbytes(speed)}/s
-           <b>» 𝗘𝗧𝗔</b> : {time_formatter(eta)}
-           """
+            📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...
+            <b>» 𝗗𝗼𝗻𝗲</b> : {round(percent, 2)}%
+            <b>» 𝗦𝗶𝘇𝗲</b> : {humanbytes(current)} | {humanbytes(total)}
+            <b>» 𝗦𝗽𝗲𝗲𝗱</b> : {humanbytes(speed)}/s
+            <b>» 𝗘𝗧𝗔</b> : {time_formatter(eta)}
+            """
 
-                await query.message.edit_text(text, parse_mode=ParseMode.HTML)
+                try:
+                    await query.message.edit_text(text, parse_mode=ParseMode.HTML)
+                except:
+                    pass
 
             file_path = await msg.download(file_name=file.file_name, progress=dprog)
 
@@ -979,7 +982,6 @@ async def cb(_, query: CallbackQuery):
             last_edit = 0
   
             async def prog(current, total):
-                nonlocal last_edit
 
                 global upload_last_edit
 
@@ -988,9 +990,10 @@ async def cb(_, query: CallbackQuery):
 
                 now = time.time()
 
+                # 🔥 prevent spam edits
                 if now - upload_last_edit < 1:
                     return
-                upload_last_edit = now        
+                upload_last_edit = now
 
                 percent, speed, eta = calc_progress(current, total, start_time)
 
@@ -1003,13 +1006,12 @@ async def cb(_, query: CallbackQuery):
             <b>» 𝗦𝗶𝘇𝗲</b> : {humanbytes(current)} | {humanbytes(total)}
             <b>» 𝗦𝗽𝗲𝗲𝗱</b> : {humanbytes(speed)}/s
             <b>» 𝗘𝗧𝗔</b> : {time_formatter(eta)}
-            """
+             """
 
                 try:
                     await query.message.edit_text(text, parse_mode=ParseMode.HTML)
-                    
-                except Exception:
-                   pass
+                except:
+                    pass
            # -------- SEND FILE -------- #
             try:
                 if mode == "video":
