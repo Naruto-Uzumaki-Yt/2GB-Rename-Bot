@@ -5,6 +5,7 @@
 # ------------------------- #
 
 import ffmpeg
+import ffmpeg
 import os
 
 def add_metadata(input_file, output_file, title, author, artist, audio, subtitle, video):
@@ -22,8 +23,8 @@ def add_metadata(input_file, output_file, title, author, artist, audio, subtitle
 
             **{
                 "metadata": f"title={title}",
-                "metadata:g:artist": artist,
-                "metadata:g:author": author,
+                "metadata:g": f"artist={artist}",
+                "metadata:g:1": f"author={author}",
                 "metadata:s:a:0": f"title={audio}",
                 "metadata:s:s:0": f"title={subtitle}",
                 "metadata:s:v:0": f"title={video}",
@@ -42,14 +43,13 @@ def add_metadata(input_file, output_file, title, author, artist, audio, subtitle
 
         size = os.path.getsize(output_file)
 
-        # If file too small OR suspicious → fallback
-        if size < 100000:   # 100KB = broken
-            raise Exception("Broken file (too small)")
+        if size < 100000:
+            raise Exception("Broken file")
 
         return output_file
 
     except Exception as e:
-        print("⚠️ Copy failed, switching to re-encode:", e)
+        print("⚠️ Cᴏᴘʏ Fᴀɪʟᴇᴅ, Sᴡɪᴛᴄʜɪɴɢ Tᴏ Rᴇ-Eɴᴄᴏᴅᴇ:", e)
 
         # -------- STEP 3: FALLBACK RE-ENCODE -------- #
         try:
@@ -63,10 +63,11 @@ def add_metadata(input_file, output_file, title, author, artist, audio, subtitle
                 acodec="aac",
                 preset="ultrafast",
 
+                # ✅ SAFE METADATA (LESS RISK)
                 **{
                     "metadata": f"title={title}",
-                    "metadata:g:artist": artist,
-                    "metadata:g:author": author,
+                    "metadata:g": f"artist={artist}",
+                    "metadata:g:1": f"author={author}",
                 },
 
                 movflags="+faststart"
@@ -77,7 +78,7 @@ def add_metadata(input_file, output_file, title, author, artist, audio, subtitle
             return output_file
 
         except Exception as e2:
-            print("❌ Re-encode also failed:", e2)
+            print("❌ Rᴇ-Eɴᴄᴏᴅᴇ Aʟsᴏ Fᴀɪʟᴇᴅ:", e2)
             return input_file
 # ------------------------- #
 # Don't Remove Credit 
