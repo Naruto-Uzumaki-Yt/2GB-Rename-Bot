@@ -612,31 +612,57 @@ async def status(_, msg):
     await msg.reply_text(text, reply_markup=buttons)
 
 # ----------- BAN | UNBAN -------------- #
+
 def is_admin(uid):
     return uid == OWNER_ID
 
+
 @bot.on_message(filters.command("ban"))
 async def ban(_, msg):
+
     if not is_admin(msg.from_user.id):
         return
-    uid = int(msg.text.split()[1])
+
+    if len(msg.command) < 2:
+        return await msg.reply(
+            "Usage:\n/ban user_id"
+        )
+
+    try:
+        uid = int(msg.command[1])
+
+    except:
+        return await msg.reply("❌ Invalid User ID")
+
     await set_user(uid, {"banned": True})
-    
+
     log_event(f"User banned: {uid}")
-    
-    await msg.reply("‼️ 𝗨𝘀𝗲𝗿 𝗜𝘀 𝗕𝗮𝗻𝗻𝗲𝗱")
+
+    await msg.reply(f"🚫 User `{uid}` banned successfully")
+
 
 @bot.on_message(filters.command("unban"))
 async def unban(_, msg):
+
     if not is_admin(msg.from_user.id):
         return
-    uid = int(msg.text.split()[1])
+
+    if len(msg.command) < 2:
+        return await msg.reply(
+            "Usage:\n/unban user_id"
+        )
+
+    try:
+        uid = int(msg.command[1])
+
+    except:
+        return await msg.reply("❌ Invalid User ID")
+
     await set_user(uid, {"banned": False})
 
     log_event(f"User unbanned: {uid}")
-    
-    await msg.reply("😁 𝗨𝘀𝗲𝗿 𝗜𝘀 𝗨𝗻𝗯𝗮𝗻𝗻𝗲𝗱")
 
+    await msg.reply(f"✅ User `{uid}` unbanned successfully")
 # ------------LOGS------------- #
 @bot.on_message(filters.command("logs"))
 async def logs(_, msg):
@@ -928,7 +954,7 @@ async def cb(_, query: CallbackQuery):
                 new_name = f"{caption}{ext}"
             else:
                 new_name = f"{prefix}{base_name}{suffix}{ext}"
-            output = f"temp_{user_id}_{original_name}"
+            output = f"temp_{user_id}_{new_name}"
             
             final = add_metadata(
                 file_path,
@@ -1011,7 +1037,6 @@ async def cb(_, query: CallbackQuery):
                 if mode == "video":
                     await msg.reply_video(
                         video=final,
-                        file_name=new_name,
                         caption=caption,
                         thumb=thumb_path,
                         duration=duration,
@@ -1059,8 +1084,10 @@ async def cb(_, query: CallbackQuery):
                          except Exception as e:
                              print("Dump Error:", e)
 
-            except Exception:
-                await query.message.edit_text("❌ Uᴘʟᴏᴀᴅ Cᴀɴᴄᴇʟʟᴇᴅ")
+            except Exception as e:
+                await query.message.edit_text(
+                    f"❌ Uᴘʟᴏᴀᴅ Cᴀɴᴄᴇʟʟᴇᴅ\n\n{str(e)}"
+                )
                 return
     
                 try:
