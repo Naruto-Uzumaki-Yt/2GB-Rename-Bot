@@ -23,7 +23,7 @@
 ---
 
 <details>
-<summary><b>Click to Expand</b></summary>
+<summary><b>Click Here To Expand Variables</b></summary>
 
 | Variable        | Description                                |
 | --------------- | ------------------------------------------ |
@@ -84,6 +84,79 @@ logs - ᴠɪᴇᴡ ʙᴏᴛ ʟᴏɢs (ᴀᴅᴍɪɴ).
 
 broadcast - sᴇɴᴅ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴜsᴇʀs (ᴀᴅᴍɪɴ).
 ```
+
+<details><summary>🚀 Deploy To Render</summary>
+
+<br>
+
+<b>Use these settings while deploying on Render:</b>
+
+<br><br>
+
+• Runtime: <code>Python 3</code>
+
+<br><br>
+
+• Build Command:
+<code>pip install -r requirements.txt</code>
+
+<br><br>
+
+• Start Command:
+<code>python main.py</code>
+
+<br><br>
+
+<b>🌐 Keep Bot Alive 24/7 Using UptimeRobot</b>
+
+<br><br>
+
+Go to:
+https://uptimerobot.com/
+
+<br><br>
+
+Click:
+<b>Add New Monitor</b>
+
+<br><br>
+
+Use these settings 👇
+
+<br><br>
+
+<img src="https://telegra.ph/file/a79a156e44f43c9833b50.jpg">
+
+<br><br>
+
+<b>Type:</b>
+<code>HTTP(s)</code>
+
+<br><br>
+
+<b>Friendly Name:</b>
+<code>Rename Bot</code>
+
+<br><br>
+
+<b>URL:</b>
+<code>https://your-render-app.onrender.com</code>
+
+<br><br>
+
+<b>Monitoring Interval:</b>
+<code>5 Minutes</code>
+
+<br><br>
+
+After adding monitor click:
+<b>Create Monitor</b>
+
+<br><br>
+
+✅ Your bot will stay alive 24/7.
+
+</details>
 
 <details>
 <summary><h3>
