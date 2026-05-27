@@ -652,6 +652,54 @@ async def setvideo(_, msg):
     await set_user(msg.from_user.id, {"video": text})
     await msg.reply("✅ Vɪᴅᴇᴏ Mᴇᴛᴀᴅᴀᴛᴀ Sᴀᴠᴇᴅ")
 
+# ---------------- SEE METADATA ---------------- #
+
+@bot.on_message(filters.command("see_metadata"))
+async def see_metadata(_, msg):
+
+    user = await get_user(msg.from_user.id) or {}
+
+    title = user.get("title", "Not Set")
+    author = user.get("author", "Not Set")
+    artist = user.get("artist", "Not Set")
+    audio = user.get("audio", "Not Set")
+    subtitle = user.get("subtitle", "Not Set")
+    video = user.get("video", "Not Set")
+
+    text = f"""
+📂 Sᴀᴠᴇᴅ Mᴇᴛᴀᴅᴀᴛᴀ
+
+━━━━━━━━━━━━━━━
+
+🎬 Title:
+`{title}`
+
+👤 Author:
+`{author}`
+
+🎨 Artist:
+`{artist}`
+
+🎵 Audio:
+`{audio}`
+
+💬 Subtitle:
+`{subtitle}`
+
+📹 Video:
+`{video}`
+
+━━━━━━━━━━━━━━━
+"""
+
+    await msg.reply_text(text)
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
 # ---------------- DUMP CHANNEL ---------------- #
 
 @bot.on_message(filters.command("setdump"))
