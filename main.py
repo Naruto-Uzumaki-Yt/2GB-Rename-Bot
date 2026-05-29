@@ -1638,12 +1638,10 @@ async def cb(_, query: CallbackQuery):
 
             # -------- NORMAL RENAME -------- #
 
+            if caption:
+                new_name = f"{caption}{ext}"
             else:
-
-                if caption:
-                    new_name = f"{caption}{ext}"
-                else:
-                    new_name = f"{prefix}{base_name}{suffix}{ext}"
+                new_name = f"{prefix}{base_name}{suffix}{ext}"
             output = f"temp_{user_id}_{safe_name(new_name)}"
 
             if any([
@@ -1704,16 +1702,16 @@ async def cb(_, query: CallbackQuery):
 
                 nonlocal last_edit
 
-            if not active_tasks.get(user_id):
-                raise Exception("Cancelled")
+                if not active_tasks.get(user_id):
+                    raise Exception("Cancelled")
 
-            now = time.time()
+                now = time.time()
      
-           # prevent spam edits
-           if now - last_edit < 1:
-               return
-
-           last_edit = now
+                # prevent spam edits
+                if now - last_edit < 1:
+                    return
+  
+                last_edit = now
 
                 percent, speed, eta = calc_progress(current, total, start_time)
 
@@ -1754,14 +1752,12 @@ async def cb(_, query: CallbackQuery):
                         api_hash=API_HASH,
                         bot_token=token,
                         in_memory=True
-                   )
+                    )
 
-                   await personal_bot.start()
-
-                   upload_client = personal_bot
+                    await personal_bot.start()
+                    upload_client = personal_bot
  
                 except Exception as e:
-
                     print("ᴘᴇʀsᴏɴᴀʟ ʙᴏᴛ ᴇʀʀᴏʀ:", e)
    
                     upload_client = bot
