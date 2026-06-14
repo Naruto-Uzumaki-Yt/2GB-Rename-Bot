@@ -1694,6 +1694,16 @@ async def cb(_, query: CallbackQuery):
 
             if not os.path.exists(final) or os.path.getsize(final) < 100000:
                 final = file_path
+                
+            # -------- FIX REAL FILE NAME -------- #
+
+            fixed_file = new_name
+
+            import shutil
+
+            shutil.copy(final, fixed_file)
+
+            final = fixed_file
 
         # -------- THUMB FIX -------- #
             thumb_path = None
@@ -1838,7 +1848,7 @@ async def cb(_, query: CallbackQuery):
                         chat_id=msg.chat.id,
                         document=final,
                         file_name=new_name,
-                        caption=final_name,
+                        caption=caption,
                         thumb=thumb_path,
                         progress=prog,
                         disable_notification=True
@@ -2106,6 +2116,7 @@ print("""
 """)
 
 bot.run()
+
 # ------------------------- #
 # Don't Remove Credit 
 # Ask Doubt @AU_Bot_Discussion 
