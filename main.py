@@ -1618,7 +1618,7 @@ async def cb(_, query: CallbackQuery):
                 now = time.time()
 
                 # prevent too frequent edits
-                if now - last_edit < 2:
+                if now - last_edit < 1:
                     return
 
                 last_edit = now
@@ -1666,7 +1666,7 @@ async def cb(_, query: CallbackQuery):
 
             new_name = final_name + ext
 
-            output = f"temp_{user_id}_{new_name}"
+            output = f"temp_{user_id}.tmp{ext}"
 
             metadata_enabled = any([
                 user.get("title"),
@@ -1734,7 +1734,7 @@ async def cb(_, query: CallbackQuery):
                 now = time.time()
 
                 # prevent spam edits
-                if now - last_edit < 2:
+                if now - last_edit < 1:
                     return
 
                 last_edit = now
