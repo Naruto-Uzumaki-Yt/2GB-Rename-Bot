@@ -1621,9 +1621,14 @@ async def cb(_, query: CallbackQuery):
 
             log_event(f"User {user_id} uploaded file: {file.file_name}")
 
-            await query.message.edit_text(
+            try:
+                await query.message.delete()
+            except:
+                pass
+
+            await query.message.reply_text(
                 "📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...",
-        reply_markup=InlineKeyboardMarkup([
+                reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("Cᴀɴᴄᴇʟ", callback_data=f"cancel_{user_id}")]
                 ])
             )
