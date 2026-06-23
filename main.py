@@ -1848,10 +1848,11 @@ async def cb(_, query: CallbackQuery):
 
         duration, width, height = (0, 0, 0)
 
-        try:
-            duration, width, height = get_video_metadata(final)
-        except:
-            pass
+        if mode == "video":
+            try:
+                duration, width, height = get_video_metadata(final)
+            except:
+                pass
             
             start_time = time.time()
             last_edit = 0
