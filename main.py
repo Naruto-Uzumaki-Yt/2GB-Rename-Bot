@@ -1844,6 +1844,7 @@ async def cb(_, query: CallbackQuery):
         await progress_msg.edit_text(
             "📤 Uᴘʟᴏᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ..."
         )
+        await asyncio.sleep(0)
 
         duration, width, height = (0, 0, 0)
 
