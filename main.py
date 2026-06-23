@@ -1716,8 +1716,6 @@ async def cb(_, query: CallbackQuery):
 
             async def dprog(current, total):
 
-                await asyncio.sleep(0)
-
                 nonlocal last_edit
 
                 if not active_tasks.get(user_id):
@@ -1754,9 +1752,15 @@ async def cb(_, query: CallbackQuery):
                     pass
 
             try:
-                file_path = await msg.download(file_name=file.file_name, progress=dprog)
+                file_path = await bot.download_media(
+                    msg,
+                    file_name=file.file_name,
+                    progress=dprog
+                )  
             except Exception as e:
-                await query.message.edit_text("❌ Download Cancelled")
+                await progress_msg.edit_text(
+                    f"❌ Download Cancelled\n\n{e}"
+                )
                 return
 
             user = await get_user(user_id) or {}
