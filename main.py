@@ -1675,14 +1675,10 @@ async def cb(_, query: CallbackQuery):
 
             user_id = query.from_user.id
 
-            await query.message.delete()
-
             try:
                 await query.answer()
             except:
                 pass
-                
-            user_mode[user_id] = data
 
             if await is_banned(user_id):
                 return await query.answer("🚫 𝗕𝗮𝗻𝗻𝗲𝗱 𝗨𝘀𝗲𝗿", show_alert=True)
@@ -1690,6 +1686,10 @@ async def cb(_, query: CallbackQuery):
             if user_id not in user_files:
                 return await query.answer("Eʀʀᴏʀ ‼️ Sᴇɴᴅ Fɪʟᴇ Aɢᴀɪɴ", show_alert=True)
 
+            await query.message.delete()
+
+            user_mode[user_id] = data
+            
             msg = user_files[user_id]  
 
             mode = user_mode.get(user_id, "file")
