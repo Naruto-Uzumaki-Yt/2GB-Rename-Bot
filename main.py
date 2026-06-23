@@ -1812,7 +1812,7 @@ async def cb(_, query: CallbackQuery):
             if not os.path.exists(final) or os.path.getsize(final) < 100000:
                 final = file_path
 
-            # -------- FIX REAL FILE NAME -------- #
+            # -------- FILE NAME -------- #
 
             fixed_file = new_name
 
@@ -1841,16 +1841,17 @@ async def cb(_, query: CallbackQuery):
 
         # -------- UPLOAD START -------- #
 
-            await progress_msg.edit_text(
-                "📤 Uᴘʟᴏᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ..."
-            )
+        await progress_msg.edit_text(
+            "📤 Uᴘʟᴏᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ..."
+        )
 
-            await asyncio.sleep(0)
+        duration, width, height = (0, 0, 0)
 
-            duration, width, height = (0, 0, 0)
-
+        try:
             duration, width, height = get_video_metadata(final)
-
+        except:
+            pass
+            
             start_time = time.time()
             last_edit = 0
 
