@@ -1673,10 +1673,13 @@ async def cb(_, query: CallbackQuery):
 
         elif data in ["file", "video"]:
 
-            user_id = query.from_user.id  
+            user_id = query.from_user.id
 
-            await query.message.delete()
-            
+            try:
+                await query.answer()
+            except:
+                pass
+                
             user_mode[user_id] = data
 
             if await is_banned(user_id):
@@ -1699,8 +1702,8 @@ async def cb(_, query: CallbackQuery):
 
             log_event(f"User {user_id} uploaded file: {file.file_name}")
 
-            progress_msg = await query.message.reply_text(
-                "📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ...",
+            progress_msg = await msg.reply_text(
+                "📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ...",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("Cᴀɴᴄᴇʟ", callback_data=f"cancel_{user_id}")]
                 ])
