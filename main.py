@@ -1675,6 +1675,8 @@ async def cb(_, query: CallbackQuery):
 
             user_id = query.from_user.id
 
+            await query.message.delete()
+
             try:
                 await query.answer()
             except:
