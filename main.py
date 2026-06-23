@@ -1239,6 +1239,7 @@ async def unban(_, msg):
     log_event(f"User unbanned: {uid}")
 
     await msg.reply(f"✅ 𝗨𝘀𝗲𝗿 `{uid}` 𝗨𝗻𝗯𝗮𝗻𝗻𝗲𝗱 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆")
+    
 # ------------LOGS------------- #
 @bot.on_message(filters.command("logs"))
 async def logs(_, msg):
@@ -1835,6 +1836,8 @@ async def cb(_, query: CallbackQuery):
                 "📤 Uᴘʟᴏᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ..."
             )
 
+            await asyncio.sleep(0)
+
             duration, width, height = (0, 0, 0)
 
             duration, width, height = get_video_metadata(final)
@@ -1843,8 +1846,6 @@ async def cb(_, query: CallbackQuery):
             last_edit = 0
 
             async def prog(current, total):
-
-                await asyncio.sleep(0)
 
                 nonlocal last_edit
 
@@ -1919,8 +1920,6 @@ async def cb(_, query: CallbackQuery):
                # -------- VIDEO MODE -------- #
                 if mode == "video":
 
-                    await asyncio.sleep(0) 
-
                     await upload_client.send_video(
                         chat_id=msg.chat.id,
                         video=final,
@@ -1974,15 +1973,16 @@ async def cb(_, query: CallbackQuery):
                                 supports_streaming=True,
                             )
                             
-                            await progress_msg.delete()
+                            try:
+                                await progress_msg.delete()
+                            except:
+                                pass
 
                         except Exception as e:
                             print("Dᴜᴍᴘ Eʀʀᴏʀ:", e)
 
                # -------- DOCUMENT MODE -------- #
                 else:
-
-                    await asyncio.sleep(0) 
 
                     await upload_client.send_document(
                         chat_id=msg.chat.id,
